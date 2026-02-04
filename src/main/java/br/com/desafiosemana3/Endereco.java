@@ -7,6 +7,11 @@ public class Endereco {
     private String bairro;
     private String localidade;
     private String uf;
+    private Boolean erro;
+
+    public Boolean getErro() {
+        return erro;
+    }
 
     public String getCep() {
         return cep;
