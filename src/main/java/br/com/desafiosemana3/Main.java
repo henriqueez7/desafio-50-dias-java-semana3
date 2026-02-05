@@ -9,10 +9,40 @@ import java.util.Scanner;
 
 public class Main {
 
+    private static final Scanner scanner = new Scanner(System.in);
+    private static final HttpClient client = HttpClient.newHttpClient();
+    private static final Gson gson = new Gson();
+
     public static void main(String[] args) {
 
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("Digite um CEP para consulta: ");
+        int opcao;
+
+        do {
+            System.out.println("\n=== Consulta de CEP ===");
+            System.out.println("1 - Consultar CEP");
+            System.out.println("0 - Sair");
+            System.out.print("Escolha uma opção: ");
+
+            opcao = Integer.parseInt(scanner.nextLine());
+
+            switch (opcao) {
+                case 1:
+                    consultarCep();
+                    break;
+                case 0:
+                    System.out.println("Encerrando o programa...");
+                    break;
+                default:
+                    System.out.println("Opção inválida.");
+            }
+
+        } while (opcao != 0);
+
+        scanner.close();
+    }
+
+    private static void consultarCep() {
+        System.out.print("\nDigite o CEP (8 números): ");
         String cep = scanner.nextLine();
 
         if (!cep.matches("\\d{8}")) {
@@ -21,7 +51,6 @@ public class Main {
         }
 
         try {
-            HttpClient client = HttpClient.newHttpClient();
             String url = "https://viacep.com.br/ws/" + cep + "/json/";
 
             HttpRequest request = HttpRequest.newBuilder()
@@ -37,7 +66,6 @@ public class Main {
                 return;
             }
 
-            Gson gson = new Gson();
             Endereco endereco = gson.fromJson(response.body(), Endereco.class);
 
             if (Boolean.TRUE.equals(endereco.getErro())) {
@@ -45,17 +73,19 @@ public class Main {
                 return;
             }
 
-            System.out.println("\nEndereço encontrado:");
-            System.out.println("CEP: " + endereco.getCep());
-            System.out.println("Logradouro: " + endereco.getLogradouro());
-            System.out.println("Bairro: " + endereco.getBairro());
-            System.out.println("Cidade: " + endereco.getLocalidade());
-            System.out.println("UF: " + endereco.getUf());
+            exibirEndereco(endereco);
 
         } catch (Exception e) {
-            System.out.println("Erro de conexão ou problema inesperado.");
+            System.out.println("Erro de conexão. Tente novamente.");
         }
+    }
 
-        scanner.close();
+    private static void exibirEndereco(Endereco endereco) {
+        System.out.println("\nEndereço encontrado:");
+        System.out.println("CEP: " + endereco.getCep());
+        System.out.println("Logradouro: " + endereco.getLogradouro());
+        System.out.println("Bairro: " + endereco.getBairro());
+        System.out.println("Cidade: " + endereco.getLocalidade());
+        System.out.println("UF: " + endereco.getUf());
     }
 }
